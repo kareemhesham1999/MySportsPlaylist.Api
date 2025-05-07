@@ -57,7 +57,7 @@ namespace MySportsPlaylist.Api.Data
                     Competition = "Premier League",
                     Date = DateTime.Now.AddHours(2),
                     Status = MatchStatus.Live,
-                    StreamUrl = "https://example.com/stream/live1"
+                    StreamUrl = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
                 },
                 new Match
                 {
@@ -65,7 +65,7 @@ namespace MySportsPlaylist.Api.Data
                     Competition = "La Liga",
                     Date = DateTime.Now.AddHours(-48),
                     Status = MatchStatus.Replay,
-                    StreamUrl = "https://example.com/stream/replay1"
+                    StreamUrl = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
                 },
                 new Match
                 {
@@ -73,7 +73,7 @@ namespace MySportsPlaylist.Api.Data
                     Competition = "Bundesliga",
                     Date = DateTime.Now.AddHours(5),
                     Status = MatchStatus.Live,
-                    StreamUrl = "https://example.com/stream/live2"
+                    StreamUrl = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
                 },
                 new Match
                 {
@@ -81,7 +81,7 @@ namespace MySportsPlaylist.Api.Data
                     Competition = "Ligue 1",
                     Date = DateTime.Now.AddHours(-24),
                     Status = MatchStatus.Replay,
-                    StreamUrl = "https://example.com/stream/replay2"
+                    StreamUrl = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
                 }
             };
 

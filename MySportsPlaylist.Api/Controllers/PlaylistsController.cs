@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using MySportsPlaylist.Api.Hubs;
 using MySportsPlaylist.Api.Models;
 using MySportsPlaylist.Api.Repositories;
 using System.Security.Claims;
@@ -13,11 +15,16 @@ namespace MySportsPlaylist.Api.Controllers
     {
         private readonly IPlaylistRepository _playlistRepository;
         private readonly IMatchRepository _matchRepository;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public PlaylistsController(IPlaylistRepository playlistRepository, IMatchRepository matchRepository)
+        public PlaylistsController(
+            IPlaylistRepository playlistRepository, 
+            IMatchRepository matchRepository,
+            IHubContext<NotificationHub> hubContext)
         {
             _playlistRepository = playlistRepository;
             _matchRepository = matchRepository;
+            _hubContext = hubContext;
         }
 
         // GET: api/Playlists
@@ -60,6 +67,12 @@ namespace MySportsPlaylist.Api.Controllers
             await _playlistRepository.AddPlaylistItemAsync(playlistItem);
             await _playlistRepository.SaveChangesAsync();
 
+            // Send real-time notification to the user
+            await _hubContext.Clients.User(userId.ToString())
+                .SendAsync("ReceiveNotification", 
+                    "Match added to playlist", 
+                    match.Title);
+
             return Ok(new { message = "Match added to playlist" });
         }
 
@@ -76,9 +89,18 @@ namespace MySportsPlaylist.Api.Controllers
                 return NotFound(new { message = "Match not found in playlist" });
             }
 
+            // Get match details for notification
+            var match = await _matchRepository.GetByIdAsync(matchId);
+
             // Remove from playlist
             await _playlistRepository.RemovePlaylistItemAsync(playlistItem);
             await _playlistRepository.SaveChangesAsync();
+
+            // Send real-time notification to the user
+            await _hubContext.Clients.User(userId.ToString())
+                .SendAsync("ReceiveNotification", 
+                    "Match removed from playlist", 
+                    match.Title);
 
             return Ok(new { message = "Match removed from playlist" });
         }
