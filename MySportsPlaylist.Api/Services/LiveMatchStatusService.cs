@@ -11,7 +11,9 @@ namespace MySportsPlaylist.Api.Services
         private readonly IServiceProvider _serviceProvider;
         private readonly IHubContext<NotificationHub> _hubContext;
         private readonly ILogger<LiveMatchStatusService> _logger;
-        private readonly TimeSpan _updateInterval = TimeSpan.FromSeconds(30); // Update every 30 seconds
+        private readonly TimeSpan _updateInterval = TimeSpan.FromSeconds(15); // Update every 30 seconds
+        private readonly TimeSpan _testNotificationInterval = TimeSpan.FromSeconds(15); // Test notification every 5 minutes
+        private DateTime _lastTestNotificationTime = DateTime.MinValue;
 
         public LiveMatchStatusService(
             IServiceProvider serviceProvider,
@@ -31,13 +33,21 @@ namespace MySportsPlaylist.Api.Services
             {
                 try
                 {
+                    _logger.LogInformation("Checking match statuses");
                     await CheckAndUpdateMatchStatuses(stoppingToken);
+
+                    // Send test notifications if it's time (For testing purposes)
+                    if (DateTime.UtcNow - _lastTestNotificationTime >= _testNotificationInterval)
+                    {
+                        await SendTestNotification(stoppingToken);
+                        _lastTestNotificationTime = DateTime.UtcNow;
+                    }
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error occurred while checking match statuses.");
                 }
-
+                
                 await Task.Delay(_updateInterval, stoppingToken);
             }
 
@@ -49,6 +59,7 @@ namespace MySportsPlaylist.Api.Services
             using (var scope = _serviceProvider.CreateScope())
             {
                 var matchRepository = scope.ServiceProvider.GetRequiredService<IMatchRepository>();
+                var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
                 
                 // Get matches that might have status changes
                 var matches = await matchRepository.GetAllAsync();
@@ -58,6 +69,7 @@ namespace MySportsPlaylist.Api.Services
                 // For this implementation, we'll simulate status changes for matches near their start time
                 
                 var currentTime = DateTime.UtcNow;
+                List<Match> updatedMatches = new List<Match>();
                 
                 foreach (var match in matches)
                 {
@@ -81,21 +93,50 @@ namespace MySportsPlaylist.Api.Services
                     {
                         // Update the match in the database
                         await matchRepository.UpdateAsync(match);
+                        updatedMatches.Add(match);
                         
-                        // Notify connected clients about the status change
-                        await _hubContext.Clients.All.SendAsync("ReceiveLiveMatchUpdate", 
-                            match.Id.ToString(), 
-                            match.Title, 
-                            match.Status.ToString(), 
-                            cancellationToken: stoppingToken);
+                        // Send notification through the notification service
+                        await notificationService.SendMatchStatusNotification(match, oldStatus.ToString());
                         
                         _logger.LogInformation("Match {MatchId} status changed from {OldStatus} to {NewStatus}", 
                             match.Id, oldStatus, match.Status);
                     }
                 }
                 
-                await matchRepository.SaveChangesAsync();
+                if (updatedMatches.Count > 0)
+                {
+                    await matchRepository.SaveChangesAsync();
+                    _logger.LogInformation("Updated {Count} match statuses", updatedMatches.Count);
+                }
             }
         }
+        private async Task SendTestNotification(CancellationToken stoppingToken)
+        {
+            try
+            {
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+                    
+                    var notification = new Notification
+                    {
+                        Title = "Test Notification",
+                        Message = $"Test Match - {DateTime.UtcNow:HH:mm:ss}",
+                        Details = "This is a test notification mocking a live match status update.",
+                        Status = "Live"
+                    };
+                    
+                    await notificationService.SendToAllUsers(notification);
+                    
+                    _logger.LogInformation("Sent test notification at {Time}", 
+                        DateTime.UtcNow.ToString("HH:mm:ss"));
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending test notification");
+            }
+        }
+
     }
 }
