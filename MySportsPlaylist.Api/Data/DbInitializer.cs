@@ -82,6 +82,30 @@ namespace MySportsPlaylist.Api.Data
                     Date = DateTime.Now.AddHours(-24),
                     Status = MatchStatus.Replay,
                     StreamUrl = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
+                },
+                new Match
+                {
+                    Title = "Juventus vs AC Milan",
+                    Competition = "Serie A",
+                    Date = DateTime.Now.AddHours(-12),
+                    Status = MatchStatus.Replay,
+                    StreamUrl = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
+                },
+                new Match
+                {
+                    Title = "Manchester City vs Chelsea",
+                    Competition = "Premier League",
+                    Date = DateTime.Now.AddHours(1),
+                    Status = MatchStatus.Live,
+                    StreamUrl = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
+                },
+                new Match
+                {
+                    Title = "Ajax vs Benfica",
+                    Competition = "Champions League",
+                    Date = DateTime.Now.AddHours(3),
+                    Status = MatchStatus.Live,
+                    StreamUrl = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
                 }
             };
 

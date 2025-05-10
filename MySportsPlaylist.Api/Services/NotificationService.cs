@@ -31,7 +31,7 @@ namespace MySportsPlaylist.Api.Services
         public async Task SendPlaylistNotification(int userId, string action, Match match)
         {
             Notification notification;
-            
+
             if (action == "added")
             {
                 notification = Notification.CreatePlaylistAddedNotification(match);
@@ -50,7 +50,7 @@ namespace MySportsPlaylist.Api.Services
                     Status = match.Status.ToString()
                 };
             }
-            
+
             await SendToUser(userId, notification);
         }
 
@@ -59,26 +59,27 @@ namespace MySportsPlaylist.Api.Services
             var notification = Notification.CreateStatusChangedNotification(match, oldStatus);
             await SendToAllUsers(notification);
         }
-        
+
         public async Task SendToAllUsers(Notification notification)
         {
             try
             {
                 await _hubContext.Clients.All.SendAsync("ReceiveNotification", notification);
-                _logger.LogInformation("Broadcast notification: {Title} - {Message}", notification.Title, notification.Message);
+                _logger.LogInformation("Broadcast notification: {Title} - {Message}", notification.Title,
+                    notification.Message);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to broadcast notification");
             }
         }
-        
+
         public async Task SendToUser(int userId, Notification notification)
         {
             try
             {
                 await _hubContext.Clients.User(userId.ToString()).SendAsync("ReceiveNotification", notification);
-                _logger.LogInformation("Sent notification to user {UserId}: {Title} - {Message}", 
+                _logger.LogInformation("Sent notification to user {UserId}: {Title} - {Message}",
                     userId, notification.Title, notification.Message);
             }
             catch (Exception ex)
