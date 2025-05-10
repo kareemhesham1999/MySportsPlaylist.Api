@@ -9,7 +9,7 @@ namespace MySportsPlaylist.Api.Models
         public string Details { get; set; }
         public string Status { get; set; }
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;
-        
+
         // Create common notification types as factory methods
         public static Notification CreatePlaylistAddedNotification(Match match)
         {
@@ -21,7 +21,7 @@ namespace MySportsPlaylist.Api.Models
                 Status = match.Status.ToString()
             };
         }
-        
+
         public static Notification CreatePlaylistRemovedNotification(Match match)
         {
             return new Notification
@@ -32,7 +32,7 @@ namespace MySportsPlaylist.Api.Models
                 Status = match.Status.ToString()
             };
         }
-        
+
         public static Notification CreateStatusChangedNotification(Match match, string oldStatus)
         {
             return new Notification

@@ -20,7 +20,7 @@ namespace MySportsPlaylist.Api.Controllers
         private readonly INotificationService _notificationService;
 
         public PlaylistsController(
-            IPlaylistRepository playlistRepository, 
+            IPlaylistRepository playlistRepository,
             IMatchRepository matchRepository,
             IHubContext<NotificationHub> hubContext,
             INotificationService notificationService)
@@ -45,7 +45,7 @@ namespace MySportsPlaylist.Api.Controllers
         public async Task<ActionResult> AddToPlaylist(int matchId)
         {
             int userId = GetCurrentUserId();
-            
+
             // Check if the match exists
             var match = await _matchRepository.GetByIdAsync(matchId);
             if (match == null)
@@ -82,7 +82,7 @@ namespace MySportsPlaylist.Api.Controllers
         public async Task<ActionResult> RemoveFromPlaylist(int matchId)
         {
             int userId = GetCurrentUserId();
-            
+
             // Find the playlist entry
             var playlistItem = await _playlistRepository.GetUserPlaylistItemAsync(userId, matchId);
             if (playlistItem == null)
@@ -111,18 +111,18 @@ namespace MySportsPlaylist.Api.Controllers
             bool exists = await _playlistRepository.IsMatchInUserPlaylistAsync(userId, matchId);
             return exists;
         }
-        
+
         // Helper method to get the current user ID from the token claims
         private int GetCurrentUserId()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
                          User.FindFirst("sub")?.Value;
-                         
+
             if (string.IsNullOrEmpty(userId) || !int.TryParse(userId, out int id))
             {
                 throw new InvalidOperationException("Unable to determine user ID from token");
             }
-            
+
             return id;
         }
     }

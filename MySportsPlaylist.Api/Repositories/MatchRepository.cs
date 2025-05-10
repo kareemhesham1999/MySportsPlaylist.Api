@@ -39,7 +39,7 @@ namespace MySportsPlaylist.Api.Repositories
                 return await GetAllAsync();
 
             query = query.ToLower();
-            
+
             return await _context.Matches
                 .Where(m => m.Title.ToLower().Contains(query) ||
                             m.Competition.ToLower().Contains(query))

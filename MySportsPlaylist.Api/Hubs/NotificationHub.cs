@@ -14,11 +14,11 @@ namespace MySportsPlaylist.Api.Hubs
                 details = matchTitle,
                 timestamp = DateTime.UtcNow
             };
-            
+
             // Send notification to a specific user
             await Clients.User(userId).SendAsync("ReceiveNotification", notification);
         }
-        
+
         public async Task SendLiveMatchUpdate(string matchId, string matchTitle, string status)
         {
             // Create a formatted notification object
@@ -30,7 +30,7 @@ namespace MySportsPlaylist.Api.Hubs
                 status = status,
                 timestamp = DateTime.UtcNow
             };
-            
+
             // Broadcast formatted notification to all connected clients
             await Clients.All.SendAsync("ReceiveNotification", notification);
         }
